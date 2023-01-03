@@ -106,6 +106,29 @@ class CppGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
 
     std::string file_name = grpc_generator::StripProto(file->name());
 
+    // Stub header
+    std::string stub_header_code = 
+      grpc_cpp_generator::GetStubHeaderPrologue(&pbfile, generator_parameters) +
+      grpc_cpp_generator::GetStubHeaderIncludes(&pbfile, generator_parameters) +
+      grpc_cpp_generator::GetStubHeaderServices(&pbfile, generator_parameters) +
+      grpc_cpp_generator::GetStubHeaderEpilogue(&pbfile, generator_parameters);
+    std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> stub_header_output(
+        context->Open(file_name + ".stub.h"));
+    grpc::protobuf::io::CodedOutputStream stub_header_coded_out(stub_header_output.get());
+    stub_header_coded_out.WriteRaw(stub_header_code.data(), stub_header_code.size());
+
+    // Stub source
+    std::string stub_source_code = 
+      grpc_cpp_generator::GetStubSourcePrologue(&pbfile, generator_parameters) +
+      grpc_cpp_generator::GetStubSourceIncludes(&pbfile, generator_parameters) +
+      grpc_cpp_generator::GetStubSourceServices(&pbfile, generator_parameters) +
+      grpc_cpp_generator::GetStubSourceEpilogue(&pbfile, generator_parameters);
+    std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> stub_source_output(
+      context->Open(file_name + ".stub.cc"));
+    grpc::protobuf::io::CodedOutputStream stub_source_coded_out(
+        stub_source_output.get());
+    stub_source_coded_out.WriteRaw(stub_source_code.data(), stub_source_code.size());
+
     std::string header_code =
         grpc_cpp_generator::GetHeaderPrologue(&pbfile, generator_parameters) +
         grpc_cpp_generator::GetHeaderIncludes(&pbfile, generator_parameters) +

@@ -130,6 +130,38 @@ std::string GetMockServices(grpc_generator::File* file,
 std::string GetMockEpilogue(grpc_generator::File* file,
                             const Parameters& params);
 
+// Return the prologue of the generated stub header file.
+std::string GetStubHeaderPrologue(grpc_generator::File* file,
+                                  const Parameters& params);
+
+// Return the includes needed for generated stub header file.
+std::string GetStubHeaderIncludes(grpc_generator::File* file,
+                                  const Parameters& params);
+
+// Return the epilogue of the generated stb header file.
+std::string GetStubHeaderEpilogue(grpc_generator::File* file,
+                                  const Parameters& params);
+
+// Return the services for generated stub header file.
+std::string GetStubHeaderServices(grpc_generator::File* file,
+                                  const Parameters& params);
+
+// Return the prologue of the generated stub source file.
+std::string GetStubSourcePrologue(grpc_generator::File* file,
+                                  const Parameters& params);
+
+// Return the includes needed for generated stub source file.
+std::string GetStubSourceIncludes(grpc_generator::File* file,
+                                  const Parameters& params);
+
+// Return the epilogue of the generated stub source file.
+std::string GetStubSourceEpilogue(grpc_generator::File* file,
+                                  const Parameters& params);
+
+// Return the services for generated stub source file.
+std::string GetStubSourceServices(grpc_generator::File* file,
+                                  const Parameters& params);
+
 }  // namespace grpc_cpp_generator
 
 #endif  // GRPC_INTERNAL_COMPILER_CPP_GENERATOR_H
