@@ -37,6 +37,99 @@ class CppGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
     return FEATURE_PROTO3_OPTIONAL;
   }
 
+  virtual bool GenerateAll(const std::vector<const FileDescriptor*>& files,
+                           const std::string& parameter,
+                           GeneratorContext* context,
+                           std::string* error) const override {
+    grpc_cpp_generator::Parameters generator_parameters;
+    generator_parameters.use_system_headers = true;
+    generator_parameters.generate_mock_code = false;
+    generator_parameters.include_import_headers = false;
+
+    std::string code;
+#ifdef _DEBUG
+    code += "Number of file: ";
+    code += std::to_string(files.size());
+    code += "\n";
+    for (auto file : files) {
+      code += file->name();
+      code += "\n";
+    }
+    std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> output(
+        context->Open("__report__.log"));
+    grpc::protobuf::io::CodedOutputStream coded_out(output.get());
+    coded_out.WriteRaw(code.data(), code.size());
+#endif  // _DEBUG
+
+    code.clear();
+    auto first_file = ProtoBufFile(files.front());
+    std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> services_header_output(
+        context->Open("services.h"));
+    code += grpc_cpp_generator::GetServicesHeaderPrologue(
+      &first_file, generator_parameters);
+    for (const auto& file : files) {
+      ProtoBufFile pbfile(file);
+      code += grpc_cpp_generator::GetServicesHeaderForwardDeclarations(
+          &pbfile, generator_parameters);
+    }
+    for (const auto& file : files) {
+      ProtoBufFile pbfile(file);
+      code += grpc_cpp_generator::GetServicesHeaderPointerDeclarations(
+          &pbfile, generator_parameters);
+    }
+    code += grpc_cpp_generator::GetServicesHeaderClassPrologue(
+        &first_file, generator_parameters);
+    for (const auto& file : files) {
+      ProtoBufFile pbfile(file);
+      code += grpc_cpp_generator::GetServicesHeaderClassDeclaration(
+          &pbfile, generator_parameters);
+    }
+    code += grpc_cpp_generator::GetServicesHeaderClassEpilogue(
+      &first_file, generator_parameters);
+    code += grpc_cpp_generator::GetServicesHeaderEpilogue(
+      &first_file, generator_parameters);
+
+    grpc::protobuf::io::CodedOutputStream coded_services_out(services_header_output.get());
+    coded_services_out.WriteRaw(code.data(), code.size());
+
+    code.clear();
+    std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> services_source_output(
+        context->Open("services.cc"));
+    code += grpc_cpp_generator::GetServicesSourcePrologue(
+      &first_file, generator_parameters);
+    for (const auto& file : files) {
+      ProtoBufFile pbfile(file);
+      code += grpc_cpp_generator::GetServicesSourceIncludes(
+          &pbfile, generator_parameters);
+    }
+    code += grpc_cpp_generator::GetServicesSourceConstructorPrologue(
+        &first_file, generator_parameters);
+    for (const auto& file : files) {
+      ProtoBufFile pbfile(file);
+      code += grpc_cpp_generator::GetServicesSourceConstructorDeclaration(
+          &pbfile, generator_parameters);
+    }
+    code += grpc_cpp_generator::GetServicesSourceConstructorEpilogue(
+        &first_file, generator_parameters);
+    code += grpc_cpp_generator::GetServicesSourceDestructor(
+        &first_file, generator_parameters);
+    code += grpc_cpp_generator::GetServicesSourceMethodPrologue(
+        &first_file, generator_parameters);
+    for (const auto& file : files) {
+      ProtoBufFile pbfile(file);
+      code += grpc_cpp_generator::GetServicesSourceMethodCall(
+          &pbfile, generator_parameters);
+    }
+    code += grpc_cpp_generator::GetServicesSourceMethodEpilogue(
+        &first_file, generator_parameters);
+    grpc::protobuf::io::CodedOutputStream coded_services_source_out(
+        services_source_output.get());
+    coded_services_source_out.WriteRaw(code.data(), code.size());
+
+    return grpc::protobuf::compiler::CodeGenerator::GenerateAll(
+        files, parameter, context, error);
+  }
+
   virtual bool Generate(const grpc::protobuf::FileDescriptor* file,
                         const std::string& parameter,
                         grpc::protobuf::compiler::GeneratorContext* context,

@@ -162,6 +162,62 @@ std::string GetStubSourceEpilogue(grpc_generator::File* file,
 std::string GetStubSourceServices(grpc_generator::File* file,
                                   const Parameters& params);
 
+std::string GetServicesHeaderPrologue(grpc_generator::File* file,
+                                      const Parameters& params);
+
+std::string GetServicesHeaderForwardDeclarations(grpc_generator::File* file,
+                                                 const Parameters& params);
+
+std::string GetServicesHeaderPointerDeclarations(grpc_generator::File* file,
+                                                 const Parameters& params);
+
+std::string GetServicesHeaderClassPrologue(grpc_generator::File* file,
+                                           const Parameters& params);
+  
+std::string GetServicesHeaderClassEpilogue(grpc_generator::File* file,
+                                           const Parameters& params);
+
+std::string GetServicesHeaderClassDeclaration(grpc_generator::File* file,
+                                              const Parameters& params);
+
+std::string GetServicesHeaderEpilogue(grpc_generator::File* file,
+                                      const Parameters& params);
+
+//
+
+std::string GetServicesSourcePrologue(grpc_generator::File* file,
+                                      const Parameters& params);
+
+std::string GetServicesSourceIncludes(grpc_generator::File* file,
+                                      const Parameters& params);
+
+std::string GetServicesSourceConstructorPrologue(grpc_generator::File* file,
+                                                 const Parameters& params);
+
+std::string GetServicesSourceConstructorDeclaration(grpc_generator::File* file,
+                                                    const Parameters& params);
+
+std::string GetServicesSourceConstructorEpilogue(grpc_generator::File* file,
+                                                 const Parameters& params);
+
+std::string GetServicesSourceDestructor(grpc_generator::File* file,
+                                        const Parameters& params);
+
+std::string GetServicesSourceMethodPrologue(grpc_generator::File* file,
+                                            const Parameters& params);
+
+std::string GetServicesSourceMethodCall(grpc_generator::File* file,
+                                        const Parameters& params);
+
+std::string GetServicesSourceMethodEpilogue(grpc_generator::File* file,
+                                            const Parameters& params);
+
+//
+
+std::string GetMainSourcePrologue(grpc_generator::File* file,
+                                  const Parameters& params);
+
+
 }  // namespace grpc_cpp_generator
 
 #endif  // GRPC_INTERNAL_COMPILER_CPP_GENERATOR_H
