@@ -214,8 +214,19 @@ std::string GetServicesSourceMethodEpilogue(grpc_generator::File* file,
 
 //
 
-std::string GetMainSourcePrologue(grpc_generator::File* file,
+std::string GetPackagesXmlPrologue(grpc_generator::File* file,
+                                   const Parameters& params);
+
+std::string GetPackagesXmlIncludes(grpc_generator::File* file,
+                                   const Parameters& params);
+
+std::string GetPackagesXmlEpilogue(grpc_generator::File* file,
+                                   const Parameters& params);
+
+std::string GetPackagesXmlMethods(grpc_generator::File* file,
                                   const Parameters& params);
+
+//
 
 
 }  // namespace grpc_cpp_generator

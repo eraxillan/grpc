@@ -3076,4 +3076,150 @@ std::string GetServicesSourceMethodEpilogue(grpc_generator::File* file,
   return output;
 }
 
+std::string GetPackagesXmlPrologue(grpc_generator::File* file,
+                                   const Parameters& params) {
+  std::string output;
+  {
+    // Scope the output stream so it closes and finalizes output to the string.
+    auto printer = file->CreatePrinter(&output);
+    
+    printer->Print("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+    printer->Print("<root>\n");
+  }
+  return output;
+}
+
+std::string GetPackagesXmlIncludes(grpc_generator::File* file,
+                                   const Parameters& params) {
+  std::string output;
+  {
+    // Scope the output stream so it closes and finalizes output to the string.
+    auto printer = file->CreatePrinter(&output);
+    std::map<std::string, std::string> vars;
+
+    if (!params.additional_header_includes.empty()) {
+      PrintIncludes(printer.get(), params.additional_header_includes, false, "");
+    }
+  }
+  return output;
+}
+
+std::string GetPackagesXmlEpilogue(grpc_generator::File* file,
+                                   const Parameters& params) {
+  std::string output;
+  {
+    // Scope the output stream so it closes and finalizes output to the string.
+    auto printer = file->CreatePrinter(&output);
+    std::map<std::string, std::string> vars;
+
+    vars["filename"] = file->filename();
+    vars["filename_identifier"] = FilenameIdentifier("summary.h");
+
+    printer->Print("</root>\n");
+  }
+  return output;
+}
+
+// trim from start (in place)
+static inline void ltrim(std::string& s) {
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+            return !std::isspace(ch);
+          }));
+}
+
+// trim from end (in place)
+static inline void rtrim(std::string& s) {
+  s.erase(std::find_if(s.rbegin(), s.rend(),
+                       [](unsigned char ch) { return !std::isspace(ch); })
+              .base(),
+          s.end());
+}
+
+// trim from both ends (in place)
+static inline void trim(std::string& s) {
+  rtrim(s);
+  ltrim(s);
+}
+
+// trim from start (copying)
+static inline std::string ltrim_copy(std::string s) {
+  ltrim(s);
+  return s;
+}
+
+// trim from end (copying)
+static inline std::string rtrim_copy(std::string s) {
+  rtrim(s);
+  return s;
+}
+
+// trim from both ends (copying)
+static inline std::string trim_copy(std::string s) {
+  trim(s);
+  return s;
+}
+
+std::string GetPackagesXmlMethods(grpc_generator::File* file,
+                                  const Parameters& params) {
+  std::string output;
+  do
+  {
+    // Scope the output stream so it closes and finalizes output to the
+    // string.
+    auto printer = file->CreatePrinter(&output);
+    std::map<std::string, std::string> vars;
+
+    // Package
+    auto packageValue = file->package();
+    if (!packageValue.empty()) {
+      vars["PackageColons"] = DotsToColons(packageValue);
+    } else
+      break;
+
+    if (file->service_count() == 0) break;
+    printer->Indent();
+    printer->Print(vars, "<package name=\"$PackageColons$\">\n");
+
+    for (int i = 0; i < file->service_count(); ++i) {
+      // Service
+      auto service = file->service(i);
+      vars["Service"] = service->name();
+      if (service->method_count() == 0) continue;
+
+      printer->Indent();
+      printer->Print(vars, "<service name=\"$Service$\">\n");
+      printer->Indent();
+
+      for (int j = 0; j < service->method_count(); ++j) {
+        // Method
+        auto method = file->service(i)->method(j);
+        vars["Method"] = method->name();
+
+        // Method original comments: leading
+        auto leadingComments = method->GetLeadingComments("");
+        if (!leadingComments.empty()) {
+          printer->Print(("<!-- " + trim_copy(leadingComments) + " -->\n").c_str());
+        }
+        
+        // Method name
+        printer->Print(vars, "<method name=\"$Method$\" />\n");
+
+        // Method original comments: trailing
+        auto trailingComments = method->GetTrailingComments("");
+        if (!trailingComments.empty()) {
+          printer->Print(("<!--" + trim_copy(trailingComments) + "-->\n").c_str());
+        }
+      }
+
+      printer->Outdent();
+      printer->Print("</service>\n");
+      printer->Outdent();
+    }
+
+    printer->Print("</package>\n");
+    printer->Outdent();
+  } while (false);
+  return output;
+}
+
 }  // namespace grpc_cpp_generator

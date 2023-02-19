@@ -48,19 +48,10 @@ class CppGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
 
     std::string code;
 #ifdef _DEBUG
-    code += "Number of file: ";
-    code += std::to_string(files.size());
-    code += "\n";
-    for (auto file : files) {
-      code += file->name();
-      code += "\n";
-    }
-    std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> output(
-        context->Open("__report__.log"));
-    grpc::protobuf::io::CodedOutputStream coded_out(output.get());
-    coded_out.WriteRaw(code.data(), code.size());
+    WriteSummaryFile(files, context);
 #endif  // _DEBUG
 
+    // services.h
     code.clear();
     auto first_file = ProtoBufFile(files.front());
     std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> services_header_output(
@@ -92,6 +83,7 @@ class CppGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
     grpc::protobuf::io::CodedOutputStream coded_services_out(services_header_output.get());
     coded_services_out.WriteRaw(code.data(), code.size());
 
+    // services.cc
     code.clear();
     std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> services_source_output(
         context->Open("services.cc"));
@@ -125,6 +117,28 @@ class CppGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
     grpc::protobuf::io::CodedOutputStream coded_services_source_out(
         services_source_output.get());
     coded_services_source_out.WriteRaw(code.data(), code.size());
+
+    // summary.h
+    code.clear();
+    std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> summary_header_output(
+      context->Open("packages.xml"));
+    code += grpc_cpp_generator::GetPackagesXmlPrologue(
+      &first_file, generator_parameters);
+    for (const auto& file : files) {
+      ProtoBufFile pbfile(file);
+      code += grpc_cpp_generator::GetPackagesXmlIncludes(
+          &pbfile, generator_parameters);
+    }
+    for (const auto& file : files) {
+      ProtoBufFile pbfile(file);
+      code += grpc_cpp_generator::GetPackagesXmlMethods(
+          &pbfile, generator_parameters);
+    }
+    code += grpc_cpp_generator::GetPackagesXmlEpilogue(
+        &first_file, generator_parameters);
+    grpc::protobuf::io::CodedOutputStream coded_summary_header_out(
+        summary_header_output.get());
+    coded_summary_header_out.WriteRaw(code.data(), code.size());
 
     return grpc::protobuf::compiler::CodeGenerator::GenerateAll(
         files, parameter, context, error);
@@ -265,6 +279,48 @@ class CppGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
               const std::string& code) const {
     std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> output(
         context->OpenForInsert(filename, insertion_point));
+    grpc::protobuf::io::CodedOutputStream coded_out(output.get());
+    coded_out.WriteRaw(code.data(), code.size());
+  }
+
+  void WriteSummaryFile(const std::vector<const FileDescriptor*>& files,
+                        GeneratorContext* context) const {
+    std::string code;
+
+    // Print the quantity of proto-files found
+    code += "Proto-files found: ";
+    code += std::to_string(files.size());
+    code += "\n";
+
+    // Print the total number of packages, services and methods
+    int totalFileWithServicesCount = 0;
+    int totalServiceCount = 0;
+    int totalMethodCount = 0;
+    for (auto file : files) {
+      if (file->service_count() > 0) {
+        totalFileWithServicesCount++;
+      }
+      totalServiceCount += file->service_count();
+      for (int i = 0; i < file->service_count(); i++) {
+        totalMethodCount += file->service(i)->method_count();
+      }
+    }
+    code += "Proto-files with services found: ";
+    code += std::to_string(totalFileWithServicesCount);
+    code += "\n";
+    code += "Services found: ";
+    code += std::to_string(totalServiceCount);
+    code += "\n";
+    code += "Methods found: ";
+    code += std::to_string(totalMethodCount);
+    code += "\n";
+
+    for (auto file : files) {
+      code += file->name();
+      code += "\n";
+    }
+    std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> output(
+        context->Open("__report__.log"));
     grpc::protobuf::io::CodedOutputStream coded_out(output.get());
     coded_out.WriteRaw(code.data(), code.size());
   }
