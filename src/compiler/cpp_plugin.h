@@ -118,7 +118,21 @@ class CppGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
         services_source_output.get());
     coded_services_source_out.WriteRaw(code.data(), code.size());
 
-    // summary.h
+    // utils.h
+    code.clear();
+    std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream>
+        utils_headers_output(context->Open("utils.h"));
+    code += grpc_cpp_generator::GetUtilsHeaderPrologue(&first_file,
+                                                       generator_parameters);
+    code += grpc_cpp_generator::GetUtilsHeaderBody(&first_file,
+                                                   generator_parameters);
+    code += grpc_cpp_generator::GetUtilsHeaderEpilogue(&first_file,
+                                                       generator_parameters);
+    grpc::protobuf::io::CodedOutputStream coded_utils_header_out(
+        utils_headers_output.get());
+    coded_utils_header_out.WriteRaw(code.data(), code.size());
+
+    // packages.xml
     code.clear();
     std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> summary_header_output(
       context->Open("packages.xml"));

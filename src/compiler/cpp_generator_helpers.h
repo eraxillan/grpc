@@ -20,6 +20,7 @@
 #define GRPC_INTERNAL_COMPILER_CPP_GENERATOR_HELPERS_H
 
 #include <map>
+#include <regex>
 
 #include "src/compiler/config.h"
 #include "src/compiler/generator_helpers.h"
@@ -56,6 +57,18 @@ inline std::string ClassName(const grpc::protobuf::Descriptor* descriptor,
 template <typename DescriptorType>
 inline std::string GetCppComments(const DescriptorType* desc, bool leading) {
   return grpc_generator::GetPrefixedComments(desc, leading, "//");
+}
+
+inline std::string ltrim_copy(const std::string& s) {
+  return std::regex_replace(s, std::regex("^\\s+"), std::string(""));
+}
+
+inline std::string rtrim_copy(const std::string& s) {
+  return std::regex_replace(s, std::regex("\\s+$"), std::string(""));
+}
+
+inline std::string trim_copy(const std::string& s) {
+  return ltrim_copy(rtrim_copy(s));
 }
 
 }  // namespace grpc_cpp_generator

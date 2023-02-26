@@ -82,6 +82,8 @@ std::string GetSourceIncludes(grpc_generator::File* file,
 std::string GetHeaderEpilogue(grpc_generator::File* file,
                               const Parameters& params);
 
+//
+
 // Return the prologue of the generated source file.
 std::string GetSourcePrologue(grpc_generator::File* file,
                               const Parameters& params);
@@ -98,21 +100,7 @@ std::string GetSourceServices(grpc_generator::File* file,
 std::string GetSourceEpilogue(grpc_generator::File* file,
                               const Parameters& params);
 
-// Return the prologue of the generated mock file.
-std::string GetMockPrologue(grpc_generator::File* file,
-                            const Parameters& params);
-
-// Return the includes needed for generated mock file.
-std::string GetMockIncludes(grpc_generator::File* file,
-                            const Parameters& params);
-
-// Return the services for generated mock file.
-std::string GetMockServices(grpc_generator::File* file,
-                            const Parameters& params);
-
-// Return the epilogue of generated mock file.
-std::string GetMockEpilogue(grpc_generator::File* file,
-                            const Parameters& params);
+//
 
 // Return the prologue of the generated mock file.
 std::string GetMockPrologue(grpc_generator::File* file,
@@ -129,6 +117,24 @@ std::string GetMockServices(grpc_generator::File* file,
 // Return the epilogue of generated mock file.
 std::string GetMockEpilogue(grpc_generator::File* file,
                             const Parameters& params);
+
+// Return the prologue of the generated mock file.
+std::string GetMockPrologue(grpc_generator::File* file,
+                            const Parameters& params);
+
+// Return the includes needed for generated mock file.
+std::string GetMockIncludes(grpc_generator::File* file,
+                            const Parameters& params);
+
+// Return the services for generated mock file.
+std::string GetMockServices(grpc_generator::File* file,
+                            const Parameters& params);
+
+// Return the epilogue of generated mock file.
+std::string GetMockEpilogue(grpc_generator::File* file,
+                            const Parameters& params);
+
+//
 
 // Return the prologue of the generated stub header file.
 std::string GetStubHeaderPrologue(grpc_generator::File* file,
@@ -161,6 +167,8 @@ std::string GetStubSourceEpilogue(grpc_generator::File* file,
 // Return the services for generated stub source file.
 std::string GetStubSourceServices(grpc_generator::File* file,
                                   const Parameters& params);
+
+//
 
 std::string GetServicesHeaderPrologue(grpc_generator::File* file,
                                       const Parameters& params);
@@ -211,6 +219,17 @@ std::string GetServicesSourceMethodCall(grpc_generator::File* file,
 
 std::string GetServicesSourceMethodEpilogue(grpc_generator::File* file,
                                             const Parameters& params);
+
+//
+
+std::string GetUtilsHeaderPrologue(grpc_generator::File* file,
+                                   const Parameters& params);
+
+std::string GetUtilsHeaderBody(grpc_generator::File* file,
+                               const Parameters& params);
+
+std::string GetUtilsHeaderEpilogue(grpc_generator::File* file,
+                                   const Parameters& params);
 
 //
 
